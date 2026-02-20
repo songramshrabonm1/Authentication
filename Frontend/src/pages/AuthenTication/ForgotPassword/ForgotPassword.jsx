@@ -9,7 +9,6 @@ import { IoMdArrowRoundBack } from "react-icons/io";
 import { motion, AnimatePresence } from "motion/react";
 import  { useEffect, useRef } from "react";
 import axios from "axios";
-import { serverUrl } from "../../../App";
 import { useNavigate } from "react-router";
 
 
@@ -18,7 +17,6 @@ export const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [Newpassword, setNewPassword] = useState("");
   const [ReEnterNewpassword, setReEnterNewPassword] = useState("");
-  const [otp, setOtp] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [ReEntershowPassword, setReEntershowPassword] = useState(false);
   const Navigate = useNavigate();
@@ -30,15 +28,13 @@ export const ForgotPassword = () => {
     refArray.current[0]?.focus();
   }, []);
   const handleInput = (value, index) => {
-    if (isNaN(value) || value === " ") return;
+    if (isNaN(value) || value?.trim() === " ") return;
     console.log(value);
 
     const newArray = [...InputArray];
 
     newArray[index] = value.slice(-1);
     setInputArray(newArray);
-    setOtp(newArray);
-    console.log("OTP: ", otp.join(""));
     value && refArray.current[index + 1]?.focus();
   };
   const handleBack = (value, event, index) => {
@@ -58,61 +54,85 @@ export const ForgotPassword = () => {
   };
 
   // TIME
-  useEffect(() => {
-    // console.log("STEP: ", step) ; 
-    if(step == 1 || step == 3)return ; 
-    // if(step == 2 ){
-      console.log("step: ", step);
+  // useEffect(() => {
+  //   // console.log("STEP: ", step) ; 
+  //   if(step == 1 || step == 3)return ; 
+  //   // if(step == 2 ){
+  //     console.log("step: ", step);
 
-      const interval = setInterval(() => {
-        if (Second > 0) {
-          setSecond(Second - 1);
-        }
-        if (Second === 0) {
-          if (Minute === 0) {
-            // stop the countdown when both minutes and second are 0
-            clearInterval(interval);
-          } else {
-            setSecond(59);
-            setMinute(Minute - 1);
-          }
-        }
-      }, 1000);
-      return () => {
-        clearInterval(interval);
-      };
-    // }
-  }, [Second,step]);
+  //     const interval = setInterval(() => {
+  //       if (Second > 0) {
+  //         setSecond(Second - 1);
+  //       }
+  //       if (Second === 0) {
+  //         if (Minute === 0) {
+  //           // stop the countdown when both minutes and second are 0
+  //           clearInterval(interval);
+  //         } else {
+  //           setSecond(59);
+  //           setMinute(Minute - 1);
+  //         }
+  //       }
+  //     }, 1000);
+  //     return () => {
+  //       clearInterval(interval);
+  //     };
+  //   // }
+  // }, [Second,step]);
 
+
+  // Email....
+  // এইটা hit করবে resend otp route এ। 
   const handleSendOtp = async () => {
     try {
-      // const result = await axios.post(`${serverUrl}/api/auth/send-otp` , {email} , {withCredentials: true});
-      // console.log(result) ; 
+      const res = await axios.get(
+        `http://localhost:3000/api/auth/users/ResendOtp`,
+        {
+          headers : {
+            "Content-Type" : 'application/json' 
+          }, 
+          withCredentials : true 
+        }
+
+      );
+      alert(res.data.message); 
       setStep(2) ; 
     } catch (error) {
       console.log(error);
+      alert(error.response.data.message);
     }
   };
 
+  // এইটা hit করবে verify otp route এ। 
   const handleVerifyOtp = async () => {
     setMinute(0) ; 
     setSecond(0) ; 
-    const result = await axios(`${serverUrl}/api/auth/verify-otp`, {email, otp} ,{withCredentials : true});
-    console.log(result) ; 
+    try{
+    const otp = InputArray.join("");
+    const res = await axios.post(
+      `http://localhost:3000/api/auth/users/VerifyOtp`,
+      { otp },
+      {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      },
+    );
+    alert(res.data.message); 
+    }catch(error){
+      alert(error.response.data.message);
+    }
+
+
     setStep(3) ; 
-    console.log("OTP: ", otp.join(""));
   };
+
+  // এইটা hit করবে reset password route এ. 
   const handleResetPassword = async()=>{
     try{
       if(ReEnterNewpassword !== Newpassword ){
-        return null; 
+        return alert('Password & Reenter Password Mustbe same...'); 
       }
-      const result = await axios.post(
-        `${serverUrl}/api/auth/reset-password`,
-        { email, Newpassword },
-        { withCredentials: true }
-      );
-      console.log(result) ; 
+     
       Navigate('/signin');
     }catch(error){
       console.log(error) ; 
@@ -121,8 +141,8 @@ export const ForgotPassword = () => {
 
   return (
     <div>
-      <div className="min-h-screen w-full">
-        <div class=" bg-base-200 ">
+      <div className="min-h-screen w-full bg-black">
+        <div class=" bg-black ">
           <div class="flex justify-center items-center sm:items-center md:items-center lg:items-center flex-col sm:flex-col ">
             <div class="w-80% lg:text-left">
               <AnimatePresence mode="wait">
@@ -137,6 +157,7 @@ export const ForgotPassword = () => {
                     <DotLottieReact
                       src="https://lottie.host/02b65d19-39d8-4b69-8fba-92eaf1e5287a/N7NZahzFeU.lottie"
                       loop
+                      height={80}
                       autoplay
                     />
                   )}
@@ -153,7 +174,7 @@ export const ForgotPassword = () => {
                       src="https://lottie.host/13532801-d73c-4b37-9f2c-37eb68b3b75d/z2Pq30o5XB.lottie"
                       loop
                       autoplay
-                      height={130}
+                      height={120}
                     />
                   )}
                 </motion.div>
@@ -162,13 +183,15 @@ export const ForgotPassword = () => {
             <main>
               <AnimatePresence mode="wait">
                 <motion.div
+                className="bg-black "
+                
                   key={step}
                   initial={{ y: 10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -10, opacity: 0 }}
                   transition={{ duration: 0.9 }}
                 >
-                  <div class="card w-full max-w-sm shrink-0 shadow-2xl">
+                  <div class="card w-full max-w-sm shrink-0 shadow-2xl bg-black">
                     <div class="card-body">
                       <div className="fieldset rounded-xl shadow-amber-500 w-full max-w-sm p-8 border-[1px] border-amber-400">
                         <div className="flex items-center gap-4 mb-6">
@@ -205,6 +228,7 @@ export const ForgotPassword = () => {
 
                             <button
                               onClick={() => {
+                                //Resend Otp Route এ hit হবে। 
                                 handleSendOtp();
                               }}
                               className="btn w-full mt-4 px-4 py-2 rounded cursor-pointer flex justify-center items-center border border-white bg-red-500 hover:bg-red-700 transition duration-500"
@@ -284,24 +308,24 @@ export const ForgotPassword = () => {
 
                             {/* RESEND OTP START */}
                             <div className="mb-4 mt-4 text-wrap wrap-break-word">
-                              <p>
+                              {/* <p>
                                 Time Remaining :
                                 <span>
                                   {Minute < 10 ? `0${Minute}` : Minute}:
                                   {Second < 10 ? `0${Second}` : Second}
                                 </span>
-                              </p>
+                              </p> */}
                               {/* BUTTON TO RESET OTP */}
                               <button
-                                disabled={Second > 0 || Minute > 0}
+                                // disabled={Second > 0 || Minute > 0}
                                 style={{
-                                  color:
-                                    Second > 0 || Minute > 0
-                                      ? "gray"
-                                      : "#FF5630",
+                                  color:"#FF5630",
+                                    // Second > 0 || Minute > 0
+                                    //   ? "gray"
+                                    //   : "#FF5630",
                                   cursor: "pointer",
-                                  textDecoration:
-                                    Second > 0 || Minute > 0 ? "" : "underline",
+                                  textDecoration: "underline"
+                                    // Second > 0 || Minute > 0 ? "" : "underline",
                                 }}
                                 onClick={() => {
                                   resendOtp();

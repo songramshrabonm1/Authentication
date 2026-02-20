@@ -8,9 +8,32 @@ import { RiderSignUp } from "./RoleSignUp/RiderSignUp";
 import { UserSignIn } from "./RoleSignIn/UserSignIn";
 import { OwnerSignIn } from "./RoleSignIn/OwnerSignIn";
 import { RiderSignIn } from "./RoleSignIn/RiderSignIn";
+import { useLocation } from "react-router";
+import { useEffect } from "react";
 
 export const SignIn = () => {
-  const [Role, setRole] = useState("user");
+  /*
+  navigate("/signin", { state: { role: "Admin" } });
+              navigate("/signin", { state: { role: "user" } });
+              navigate("/signin", { state: { role: "Rider" } });
+
+
+  navigate('/signIn', {state : {role : 'user'}}) 
+  tarpor signin component e giye 
+  const location = useLocation() ; 
+  const State = location.state || {} ; 
+  console.log(State.role) eivabe pabo 
+  evabe pabo na 
+  */
+  const location = useLocation();
+  console.log('location: ' , location) ; 
+  const State = location.state || "user";
+  console.log('State: ', State) ; 
+  const [Role, setRole] = useState(State.role);
+  console.log('Role: ' , Role) ; 
+  
+
+
   return (
     <div>
       <div className="flex flex-col items-center justify-center  w-ful">
@@ -24,7 +47,7 @@ export const SignIn = () => {
         </p>
 
         <div className="grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-1   gap-3 m-4">
-          {["user", "owner", "deliveryBoy"].map((r) => (
+          {["user", "Admin", "Rider"].map((r) => (
             <button
               onClick={() => setRole(r)}
               className=" cursor-pointer text-center flex-1 border rounded-lg px-12 py-3 font-medium transition-colors"
@@ -50,8 +73,8 @@ export const SignIn = () => {
             transition={{ duration: 0.2 }}
           >
             {Role === "user" && <UserSignIn />}
-            {Role === "owner" && <OwnerSignIn></OwnerSignIn>}
-            {Role === "deliveryBoy" && <RiderSignIn></RiderSignIn>}
+            {Role === "Admin" && <OwnerSignIn></OwnerSignIn>}
+            {Role === "Rider" && <RiderSignIn></RiderSignIn>}
           </motion.div>
         </AnimatePresence>
       </main>

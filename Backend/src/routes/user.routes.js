@@ -13,9 +13,8 @@ const routers = express.Router() ;
 
 const RegistrationValidationMiddleware = [
     body('userName')
-        .trim()
         .isLength({min : 3 })
-        .withMessage('Length Less Than 3 character'),
+        .withMessage('Length Less Than 3 character ... Route Model Line Number 17'),
     body('email')
         .isEmail()
         .normalizeEmail()
@@ -50,11 +49,12 @@ const VerifyOtpValidationMiddleware = [
 const upload = multer({ storage: multer.memoryStorage() });
 
 // /api/auth/users/Registration
+console.log('UserREgistration')
 routers.post('/users/Registration', upload.single('image') , RegistrationValidationMiddleware, Registration); 
 routers.post("/users/Login", LoginValidationMiddleware, Login); 
 routers.post("/users/SignOut", SignOut); 
 routers.post("/users/ResetPassword", ResetPasswordd, ResetPassword); 
-routers.post("/users/ResendOtp", ResendOtp); 
+routers.get("/users/ResendOtp", ResendOtp); 
 routers.post("/users/VerifyOtp", VerifyOtpValidationMiddleware, VerifyOtp); 
 
 module.exports = routers;

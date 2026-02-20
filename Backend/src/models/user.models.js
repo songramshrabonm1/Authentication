@@ -22,7 +22,7 @@ const UserSchema = new mongoose.Schema(
       select: false,
       required: true,
     },
-    profileImage: {
+    image: {
       type: String,
       default: null,
     },
@@ -59,8 +59,8 @@ const UserSchema = new mongoose.Schema(
     },
     otpTime: {
       type: Date,
-      // default : ()=> new Date(Date.now() + 5 * 60 * 1000)  //timeime calculate / custom logicdefault: () => Date.now() + ...
-      default: null,
+      default : ()=> new Date(Date.now() + 5 * 60 * 1000)  //timeime calculate / custom logicdefault: () => Date.now() + ...
+      // default: null,
     },
     RefreshToken: [
       {
@@ -88,7 +88,7 @@ const UserSchema = new mongoose.Schema(
 */
 UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
-    return next();
+    return next;
   }
   const salt = await bcrypt.genSalt(Number(process.env.SaltNumber));
   /* 

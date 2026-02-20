@@ -15,16 +15,25 @@ export const OwnerSignIn= () => {
   const navigate = useNavigate();
       const [email , setEmail] = useState('') ; 
       const [password , setPassword] = useState('') ; 
-      const [role, setRole] = useState("owner"); ; 
-        // const handleSignIn = async () => {
-        //   const result = await axios.post(
-        //     `${serverUrl}/api/auth/signin`,
-        //     { email, password, role },
-        //     { withCredentials: true }
-        //   );
-        //   console.log(result);
-        //   console.log(result.data.message);
-        // };
+      // const [role, setRole] = useState("owner"); ; 
+        const handleSignIn = async () => {
+          try{
+            const role = "Admin";
+            
+            const res = await axios.post(
+              `http://localhost:3000/api/auth/users/Login`,
+              { email, password , role},
+              { headers: { "Content-Type": "application/json" } , withCredentials : true  },
+            ); 
+
+            console.log(res.data.message); 
+            alert(res.data.message); 
+            navigate('/otp')
+          }catch(error){
+            console.error(error.message) ; 
+            console.log(error.response.data.message); 
+          }
+        };
   return (
     <div className="min-h-screen w-full">
       <div class=" bg-base-200 ">
@@ -62,7 +71,7 @@ export const OwnerSignIn= () => {
                     }}
                   />
                 </div>
-                <div className="mb-2">
+                <div className="mb-2 fieldset">
                   <label
                     htmlFor="password"
                     className="block text-white font-medium mb-1"
@@ -71,7 +80,7 @@ export const OwnerSignIn= () => {
                   </label>
                   <div className="relative">
                     <input
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? "password" : "text"}
                       className="input  border rounded-lg px-3 py-3 focus:outline-none focus:border-orange-500"
                       placeholder="Enter Your password"
                       value={password}
@@ -105,7 +114,7 @@ export const OwnerSignIn= () => {
 
                 <button
                   onClick={() => {
-                    // handleSignIn();
+                    handleSignIn();
                   }}
                   className="btn mt-4 px-4 py-2 rounded cursor-pointer flex justify-center items-center border border-white bg-amber-600 hover:bg-red-500 transition duration-500"
                 >

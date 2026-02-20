@@ -5,27 +5,40 @@ import { FaEye } from "react-icons/fa";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { FcGoogle } from "react-icons/fc";
 import axios from "axios";
-import { serverUrl } from "../../../App";
 import styles from "./bubble.module.css";
 import { useNavigate } from "react-router";
 
 export const UserSignIn = () => {
   const [email , setEmail] = useState('') ; 
   const [password , setPassword] = useState('') ; 
-  const [role , setRole ] = useState('user') ; 
+  // const [role , setRole ] = useState('user') ; 
 
   const [showPassword, setShowPassword] = useState(true);
   const navigate = useNavigate();
-  // const navigate = useNavigate();
-  // const handleSignIn = async() =>{
-  //   const result = await axios.post(
-  //     `${serverUrl}/api/auth/signin`,
-  //     { email, password, role },
-  //     { withCredentials: true }
-  //   ); 
-  //   console.log(result) ; 
-  //   console.log(result.data.message) ; 
-  // }
+
+  const handleSignIn = async()=>{
+    try{
+      const role = "user";
+      const res = await axios.post(
+        `http://localhost:3000/api/auth/users/Login`,
+        {email , password , role} , 
+        {
+          headers : {
+            "Content-Type" : "application/json"
+          }, 
+          withCredentials : true 
+        }
+      );
+      console.log(res.data.message); 
+      console.log(res.data.success); 
+      navigate("/otp");
+
+
+    }catch(error){
+      console.error(error.message); 
+    }
+  }
+
   return (
     <div className="min-h-screen w-full">
       <div class=" bg-base-200 ">
@@ -45,15 +58,6 @@ export const UserSignIn = () => {
                 </p>
                 <hr className="mb-8 " />
 
-                {/* <label htmlFor="fullName" class="label">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  className="input   border rounded-lgfocus:outline-none focus:border-orange-500"
-                  placeholder="Enter Email"
-                /> */}
-
                 <div className="mb-2">
                   <label
                     htmlFor="email"
@@ -71,7 +75,7 @@ export const UserSignIn = () => {
                     }}
                   />
                 </div>
-                <div className="mb-2">
+                <div className="mb-2 fieldset">
                   <label
                     htmlFor="password"
                     className="block text-white font-medium mb-1"
@@ -80,7 +84,7 @@ export const UserSignIn = () => {
                   </label>
                   <div className="relative">
                     <input
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? "password" : "text"}
                       className="input  border rounded-lg px-3 py-3 focus:outline-none focus:border-orange-500"
                       placeholder="Enter Your password"
                       value={password}
@@ -113,7 +117,7 @@ export const UserSignIn = () => {
                 </p>
 
                 <button
-                  onClick={() => handleSignIn}
+                  onClick={() => handleSignIn()}
                   className="btn mt-4 px-4 py-2 rounded cursor-pointer flex justify-center items-center border border-white bg-amber-600 hover:bg-red-500 transition duration-500"
                 >
                   SIGN IN

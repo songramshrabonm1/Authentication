@@ -4,11 +4,15 @@ import { FaEyeSlash } from "react-icons/fa";
 import { FaEye } from "react-icons/fa";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { FcGoogle } from "react-icons/fc";
-import { serverUrl } from "../../../App";
 import axios from "axios";
 import styles from "./bubble.module.css";
 import { useNavigate } from "react-router";
 
+
+import { FiCheckSquare, FiX } from "react-icons/fi";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect } from "react";
+// import Notification from "./Notification";
 
 export const OwnerSignUp = () => {
     const [fullName, setFullName] = useState("");
@@ -18,12 +22,17 @@ export const OwnerSignUp = () => {
     const [AgainPassword, setAgainPassword] = useState("");
     const [showPassword, setShowPassword] = useState(true);
     const [RenterShowPassword, setReEnterShowPassword] = useState(true);
-    const [role, setRole] = useState("owner");
     const [imageData , setImageData] = useState();
 
 
+      const [notifications, setNotifications] = useState([]);
 
-    const handleSignUp = async (e) => {
+      const removeNotif = (id) => {
+        setNotifications((pv) => pv.filter((n) => n.id !== id));
+      };
+
+
+    const handleSignUp = async () => {
       try {
         // e.preventDefault();
         if (password !== AgainPassword) {
@@ -35,7 +44,7 @@ export const OwnerSignUp = () => {
         console.log('email', email); 
         console.log('mobile: ', mobile); 
         console.log('password' , password); 
-        console.log('role', role) ; 
+        console.log('role', "Admin") ; 
         console.log('ImageData' , imageData);
 
 
@@ -43,26 +52,56 @@ export const OwnerSignUp = () => {
         formData.append("userName", fullName);
         formData.append("email", email);
         formData.append("mobile", mobile);
-        formData.append("role", role);
+        formData.append("role", "Admin");
         formData.append("image", imageData);
+        formData.append('password' , password);
 
-        const res = axios.post(`http://localhost:3000/api/auth/users/Registration`, formData, {
-        headers : {'Content-Type' : 'multipart/form-data'}  
-        });
+        const res =await axios.post(
+          `http://localhost:3000/api/auth/users/Registration`,
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            withCredentials : true 
+          },
+        );
 
+        console.log(res);
         console.log(res.data); 
+        console.log(res.data.success);
+      
+
         
-        
+      setNotifications((pv) => [generateRandomNotif(res.data.message), ...pv]);
+
+              navigate("/signin", { state: { role: "Admin" } });
+              // navigate("/signin", { state: { role: "user" } });
+              // navigate("/signin", { state: { role: "Rider" } });
 
 
       } catch (error) {
         console.log(error);
+       
+        const BackendMessage = error.response.data?.message || error.message || "Somethin Went wrong"
+              setNotifications((pv) => [
+                generateRandomNotif(BackendMessage),
+                ...pv,
+              ]);
+
       }
     };
 
   const navigate = useNavigate();
   return (
     <div className="min-h-screen w-full">
+      {/* REMOVENOTIFICATION */}
+      <div className="flex flex-col gap-1 w-72 fixed top-2 right-2 z-50 pointer-events-none">
+        <AnimatePresence>
+          {notifications.map((n) => (
+            <Notification removeNotif={removeNotif} {...n} key={n.id} />
+          ))}
+        </AnimatePresence>
+      </div>
+
       <div class=" bg-base-200 ">
         <div class="flex justify-center items-start sm:items-center md:items-start lg:items-start flex-col sm:flex-col md:flex-row-reverse lg:flex-row-reverse">
           <div class="w-full lg:text-left">
@@ -124,7 +163,7 @@ export const OwnerSignUp = () => {
                   </label>
                   <div className="relative">
                     <input
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? "password" : "text"}
                       className="input  border rounded-lg px-3 py-3 focus:outline-none focus:border-orange-500"
                       placeholder="Enter Your password"
                       value={password}
@@ -156,7 +195,7 @@ export const OwnerSignUp = () => {
                   </label>
                   <div className="relative">
                     <input
-                      type={RenterShowPassword ? "text" : "password"}
+                      type={RenterShowPassword ? "password" : "text"}
                       className="input  border rounded-lg px-3 py-3 focus:outline-none focus:border-orange-500"
                       placeholder="ReEnter Your password"
                       value={AgainPassword}
@@ -208,8 +247,9 @@ export const OwnerSignUp = () => {
                     type="file"
                     name="image"
                     accept="image/*"
-                    
-                    onChange={(e)=>{setImageData(e.target.files[0])}}
+                    onChange={(e) => {
+                      setImageData(e.target.files[0]);
+                    }}
                     className="input  border rounded-lg px-3 py-3 focus:outline-none focus:border-orange-500"
                   />
                 </div>
@@ -248,6 +288,9 @@ export const OwnerSignUp = () => {
 
 
 
+
+
+
 const BubbleText = () => {
   return (
     <h2 className="text-start text-5xl font-thin text-[#E74223]">
@@ -257,5 +300,47 @@ const BubbleText = () => {
         </span>
       ))}
     </h2>
+  );
+};
+
+const generateRandomNotif = (message) => {
+
+
+
+  const data = {
+    id: Math.random(),
+    text: `${message}`,
+  };
+
+  return data;
+};
+
+
+const NOTIFICATION_TTL = 5000;
+
+const Notification = ({ text, id, removeNotif }) => {
+  useEffect(() => {
+    const timeoutRef = setTimeout(() => {
+      removeNotif(id);
+    }, NOTIFICATION_TTL);
+
+    return () => clearTimeout(timeoutRef);
+  }, []);
+
+  return (
+    <motion.div
+      layout
+      initial={{ y: -15, scale: 0.95 }}
+      animate={{ y: 0, scale: 1 }}
+      exit={{ x: "100%", opacity: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="p-2 flex items-start rounded gap-2 text-xs font-medium shadow-lg text-white bg-[#E74223] pointer-events-auto"
+    >
+      <FiCheckSquare className=" mt-0.5" />
+      <span>{text}</span>
+      <button onClick={() => removeNotif(id)} className="ml-auto mt-0.5">
+        <FiX />
+      </button>
+    </motion.div>
   );
 };

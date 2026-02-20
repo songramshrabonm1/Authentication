@@ -5,6 +5,7 @@ const { genRefreshToken, genAccessToken, genAccessTokenCookiePayload, genRefresh
 const { SendOtpEmail } = require('../services/sendEmail.services');
 const Registration = async (req, res) => {
   try {
+    console.log('Registration');
     const expressValidationError = validationResult(req); 
 
     /*
@@ -22,6 +23,8 @@ const Registration = async (req, res) => {
             statusCode : 400
         })
     }
+
+    const {userName, email, password, role , mobile} = req.body ; //must be declare করতে হবে। 
 
     if (
       !userName ||
@@ -74,7 +77,7 @@ const Registration = async (req, res) => {
     
     const UploadImageUrl = await UploadImage(req.file.buffer , userName) ; 
 
-    console.log('UploadImageUrl' , UploadImage.url);
+    console.log("UploadImageUrl", UploadImageUrl.url);
 
     const NewUser = await UserModel.create({
       userName,
@@ -82,7 +85,7 @@ const Registration = async (req, res) => {
       email,
       role,
       mobile,
-      profileImage: UploadImageUrl.url,
+      image: UploadImageUrl.url,
     });
 
     console.log('NewUser' , NewUser);
@@ -91,7 +94,7 @@ const Registration = async (req, res) => {
         email , 
         UserId : NewUser._id , 
     }
-    console.log('Payload' , payload); 
+    console.log("Payload", Payload); 
     const RefreshToken = genRefreshToken(Payload);
     console.log('RefreshToken' , RefreshToken);
     const AccessToken = genAccessToken(Payload); 
@@ -106,7 +109,7 @@ const Registration = async (req, res) => {
     res.cookie("AccessToken", AccessToken, AccessTokenPayload);
     
     console.log('NewUserUpdate');
-    await NewUser.findByIdAndUpdate(NewUser._id, {
+    await UserModel.findByIdAndUpdate(NewUser._id, { //এখানে model হবে। 
       $push: {
         RefreshToken: {
           $each: [
@@ -135,6 +138,7 @@ const Registration = async (req, res) => {
     return res.status(500).json({
       message: "Internal Sever Error",
       success: false,
+      statusCode : 500
     });
   }
 };
@@ -148,11 +152,15 @@ const Login = async (req, res) => {
             statusCode : 400
         })
     }
-    const {email , password} = req.body ; 
-    if(!email || 
-    !password || 
-    email?.trim()=== "" || 
-    password?.trim()==="")
+    const {email , password , role } = req.body ; 
+
+    if(!email 
+    || !password 
+    || !role 
+    || email?.trim()=== "" 
+    || password?.trim()===""
+    || role?.trim() === ""
+    )
     {
         return res.status(400).json({
             success : true , 
@@ -160,6 +168,8 @@ const Login = async (req, res) => {
             statusCode : 400
         })
     }
+    console.log('email: 168 line ', email);
+    console.log("password: 169 line ", password);
     const UserExist = await UserModel.findOne({email}).select("+password");
 /*
  আমি এখানে প্রায় সময় ভুল করে ভুলে যায় select("+password") যে দিতে হবে 
@@ -172,8 +182,19 @@ const Login = async (req, res) => {
             statusCode : 401 
         })
     }
+    console.log("UserExist: 182line", UserExist);
+
+    if(UserExist.role !== role){
+        return res.status(401).json({
+            message : "User Role Not Match..." , 
+            success : false , 
+            statusCode:  401
+        })
+    }
+
 
     const IsMatchPassword = await UserExist.comparePassword(password) ; 
+    console.log('IsmatchPassword 186 line: ', IsMatchPassword);
     if(!IsMatchPassword){
         return res.status(401).json({
             message : 'Invalid Password' , 
@@ -187,10 +208,16 @@ const Login = async (req, res) => {
         email : UserExist.email , 
         UserId : UserExist._id 
     }
+    console.log('payload 200 line: ', payload);
+
     const RefreshToken = genRefreshToken(payload);
+    console.log('RefreshToken : 203 line -  ' , RefreshToken); 
     const AccessToken = genAccessToken(payload); 
+    console.log("AccessToken : 205 line -  ", AccessToken); 
     const RefreshTokenPayload = genRefreshTokenCookiePayload() ; 
+    console.log("RefreshTokenPayload : 207 line -  ", RefreshTokenPayload); 
     const AccessTokenPayload = genAccessTokenCookiePayload();
+    console.log("AccessTokenPayload : 209 line -  ", AccessTokenPayload); 
 
 
     res.cookie("RefreshToken", RefreshToken, RefreshTokenPayload);
@@ -198,12 +225,14 @@ const Login = async (req, res) => {
 
 
     const OtpGenerate = Math.floor(100000+ Math.random() * 999999).toString(); 
+    console.log('otp 213Line - ', OtpGenerate);
     UserExist.otp = OtpGenerate; 
-    UserExist.isExpired = false ; 
+    UserExist.isExpired = false; 
     UserExist.otpVerified = false ; 
     UserExist.otpTime = new Date(Date.now() + 5 * 60 * 1000); 
 
     await UserExist.save();
+    console.log('UserSave- 224line' , UserExist);
 
     await SendOtpEmail(UserExist.email, OtpGenerate); 
 
@@ -220,6 +249,7 @@ const Login = async (req, res) => {
     return res.status(500).json({
       message: "Internal Sever Error",
       success: false,
+      statusCode : 500
     });
   }
 };
@@ -235,6 +265,8 @@ const VerifyOtp = async (req, res) => {
         })
     }
     const AccessToken = req.cookies?.AccessToken; 
+    console.log('AccessToken 268' , AccessToken) ; 
+
     if(!AccessToken){
         return res.status(401).json({
             message : 'Authentication Error....' , 
@@ -244,6 +276,7 @@ const VerifyOtp = async (req, res) => {
     }
 
     const Decode = verifyAccessToken(AccessToken);
+    console.log('Decode : 279' , Decode); 
     if(!Decode){
         return res.status(401).json({
             message : "Invalid AccessToken" , 
@@ -253,6 +286,7 @@ const VerifyOtp = async (req, res) => {
     }
 
     const Email = Decode.email; 
+    console.log('Email :289 ' , Email) ; 
     if(!Email){
         return res.status(401).json({
             message : 'Authentication Error' , 
@@ -262,6 +296,7 @@ const VerifyOtp = async (req, res) => {
     }
 
     const UserExist = await UserModel.findOne({email : Email}); 
+    console.log('UserExist : 299' , UserExist); 
     if(!UserExist){
         
         return res.status(404).json({
@@ -272,8 +307,23 @@ const VerifyOtp = async (req, res) => {
     }
 
     const {otp} = req.body; 
+    console.log('Otp: 310' , otp); 
   
-   
+       if (!otp) {
+         // 400 bad request
+         return res.status(400).json({
+           message: "OTP Required",
+           statusCode: 400,
+           success: false,
+         });
+       }
+          if (otp !== UserExist.otp) {
+            return res.status(401).json({
+              message: "OTP NOT Matched",
+              success: false,
+              statusCode: 401,
+            });
+          }
 
     if(UserExist.otpTime < Date.now()){
         UserExist.isExpired = true ; 
@@ -284,30 +334,21 @@ const VerifyOtp = async (req, res) => {
             success : false 
         })
     }
+    console.log('Time Ache 337 ....');
 
-    if(!otp){
-        // 400 bad request
-        return res.status(400).json({
-            message : "OTP Required" , 
-            statusCode : 400, 
-            success : false 
-        })
-    }
 
-     if(otp !== UserExist.otp){
-        return res.status(401).json({
-            message : 'OTP NOT Matched' , 
-            success : false , 
-            statusCode : 401
-        })
-    }
+
+  
 
     UserExist.isExpired = false ; 
     UserExist.otpVerified = true ; 
     UserExist.otp = null 
 
+    console.log('UserExist Save Before line 347')
+    
     await UserExist.save();
-
+    console.log('UserExist Save After line 350')
+    
     return res.status(200).json({
         message : 'OTP VALIDATION SUCCESSFULLYY', 
         statusCode : 200, 
@@ -354,7 +395,7 @@ const ResendOtp = async (req, res) => {
         })
     }
 
-    const UserExist = await UserModel.findOne({Email}); 
+    const UserExist = await UserModel.findOne({email : Email}); 
     if(!UserExist){
         
         return res.status(404).json({
@@ -392,15 +433,20 @@ const ResendOtp = async (req, res) => {
 
 const SignOut = async (req, res) => {
   try {
-    const RefreshToken = req.cookies.RefreshToken; 
+    const RefreshToken = req.cookies?.RefreshToken; 
+    const AccessToken = req.cookies?.AccessToken; 
+    console.log('RefreshToken....417line' , RefreshToken);
+    console.log("AccessToken:... 418 Line ", AccessToken);
     if(!RefreshToken){
-        return res.status(4001).json({
+        return res.status(401).json({
             message : 'Authentication Error', 
             success : false , 
             statusCode : 401 
         })
     }
+    
     const decode = verifyRefrehsToken(RefreshToken);
+    console.log('Decode : 425Line- ', decode);
     if(!decode){
         return res.status(401).json({
             message : 'Invalid Token' , 
@@ -408,7 +454,8 @@ const SignOut = async (req, res) => {
             statusCode : 401
         })
     } 
-    const email = RefreshToken.email ; 
+    const email = decode.email; 
+    console.log('email : 434 line - ' , email); 
     if(!email){
         return res.status(401).json({
             message : 'Authentication Error...' , 
@@ -417,6 +464,7 @@ const SignOut = async (req, res) => {
         })
     }
     const UserExist = await UserModel.findOne({email}) ; 
+    console.log('UserExist:443 line -  ' , UserExist); 
     if(!UserExist){
         return res.status(401).json({
             message : 'Authentication Error', 
@@ -424,7 +472,7 @@ const SignOut = async (req, res) => {
             statusCode : 401
         })
     }
-    await UserExist.findByIdAndUpdate(UserExist._id, {
+    await UserModel.findByIdAndUpdate(UserExist._id, { // findbyidAndUpdate এইটা model হবে। 
       $pull: {
         RefreshToken: {
           token: RefreshToken,
@@ -530,6 +578,7 @@ const ResetPassword = async (req, res) => {
             success : false 
         })
     }
+
     if(!UserExist.otpVerified){
         return res.status(403).json({
           success: false,
@@ -537,6 +586,7 @@ const ResetPassword = async (req, res) => {
           message: "OTP Verification Required",
         });
     }
+    
     UserExist.RefreshToken = [] ; // আমরা খালি করে দিতেছি যেন সব ডিভাইস থেকে logout হয়ে যায়। 
     // আর আবার নতুন refreshToken বানাচ্ছি না কারণ নতুন password দেওয়ার পর user আবার login করতে হবে। 
     UserExist.password = NewPassword; 

@@ -8,9 +8,17 @@ import { serverUrl } from "../../../App";
 import axios from "axios";
 import styles from "./bubble.module.css";
 import { useNavigate } from "react-router";
-
+import { useEffect } from "react";
+import { FiCheckSquare, FiX } from "react-icons/fi";
+import { AnimatePresence, motion } from "framer-motion";
 
 export const RiderSignUp = () => {
+
+    const [notifications, setNotifications] = useState([]);
+
+    const removeNotif = (id) => {
+      setNotifications((pv) => pv.filter((n) => n.id !== id));
+    };
 
     const [fullName , setFullName ] = useState('') ; 
     const [email , setEmail ] = useState('') ; 
@@ -19,21 +27,57 @@ export const RiderSignUp = () => {
     const [AgainPassword , setAgainPassword] = useState('') ; 
     const [showPassword, setShowPassword] = useState(true);
     const [RenterShowPassword , setReEnterShowPassword] = useState(true) ; 
-    const [role, setRole] = useState("deliveryBoy"); 
+    const [imageData, setImageData] = useState(); 
 
 
       const handleSignUp = async () => {
         try {
-          if(password !== AgainPassword)return ; 
-    
-          const result = await axios.post(
-            `${serverUrl}/api/auth/signup`,
-            { fullName, email, mobile, password, role },
-            { withCredentials: true }
-          );
-          console.log(result) ; 
+          if(password !== AgainPassword)return setNotifications((pv) => [
+            generateRandomNotif("Password & confirm password not same..."),
+            ...pv,
+          ]);
+; 
+          
+           console.log('UserName' , fullName) ; 
+           console.log('Email' , email) ; 
+           console.log('Password', password); 
+           console.log('mobile' , mobile); 
+           console.log("image", imageData);
+           console.log("role", "Rider");
+           
+           const formData = new FormData() ; 
+        formData.append("userName", fullName);
+        formData.append("email", email);
+        formData.append("mobile", mobile);
+        formData.append("role", "Rider");
+        formData.append("image", imageData);
+        formData.append("password", password);
+           
+        const res = await axios.post(
+          `http://localhost:3000/api/auth/users/Registration`,
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            withCredentials : true 
+          },
+        );
+        console.log(res) ;
+        console.log(res.data) ; 
+        console.log(res.data.message); 
+        console.log(res.data.success) ;
+        
+        setNotifications((pv) => [generateRandomNotif(res.data.message), ...pv]);
+             
+        // navigate("/signin", { state: { role: "Admin" } });
+        // navigate("/signin", { state: { role: "user" } });
+        navigate("/signin", { state: { role: "Rider" } });
+
+
+
         } catch (error) {
+          const BackendMessage = error.response.data?.message || error.message || "Something Went Wrong"
           console.log(error);
+          setNotifications((pv)=>[generateRandomNotif(BackendMessage) , ...pv]);
         }
       };
 
@@ -43,6 +87,14 @@ export const RiderSignUp = () => {
   const navigate = useNavigate();
   return (
     <div className="min-h-screen w-full">
+      <div className="flex flex-col gap-1 w-72 fixed top-2 right-2 z-50 pointer-events-none">
+        <AnimatePresence>
+          {notifications.map((n) => (
+            <Notification removeNotif={removeNotif} {...n} key={n.id} />
+          ))}
+        </AnimatePresence>
+      </div>
+
       <div class=" bg-base-200 ">
         <div class="flex justify-center items-start sm:items-center md:items-start lg:items-start flex-col sm:flex-col md:flex-row-reverse lg:flex-row-reverse">
           <div class="w-full lg:text-left">
@@ -95,7 +147,7 @@ export const RiderSignUp = () => {
                     }}
                   />
                 </div>
-                <div className="mb-2">
+                <div className="mb-2 fieldset">
                   <label
                     htmlFor="password"
                     className="block text-white font-medium mb-1"
@@ -104,7 +156,7 @@ export const RiderSignUp = () => {
                   </label>
                   <div className="relative">
                     <input
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? "password" : "text"}
                       className="input  border rounded-lg px-3 py-3 focus:outline-none focus:border-orange-500"
                       placeholder="Enter Your password"
                       value={password}
@@ -127,7 +179,7 @@ export const RiderSignUp = () => {
                     </button>
                   </div>
                 </div>
-                <div className="mb-2">
+                <div className="mb-2 fieldset">
                   <label
                     htmlFor="password"
                     className="block text-white font-medium mb-1"
@@ -136,7 +188,7 @@ export const RiderSignUp = () => {
                   </label>
                   <div className="relative">
                     <input
-                      type={RenterShowPassword ? "text" : "password"}
+                      type={RenterShowPassword ? "password" : "text"}
                       className="input  border rounded-lg px-3 py-3 focus:outline-none focus:border-orange-500"
                       placeholder="ReEnter Your password"
                       value={AgainPassword}
@@ -168,11 +220,12 @@ export const RiderSignUp = () => {
                   </label>
                   <input
                     type="text"
+                    name = "mobile" // name ও দিতে ভুলে গিয়েছি। 
                     className="input  border rounded-lg px-3 py-3 focus:outline-none focus:border-orange-500"
                     placeholder="Enter Your Mobile Number"
                     value={mobile}
                     onChange={(e) => {
-                      setMobile(e.target.mobile);
+                      setMobile(e.target.value); // এখানে ভুলে e.target.mobile লিখে ফেলেছিলাম কিন্তু এইটা e.target.value হবে। 
                     }}
                   />
                 </div>
@@ -184,19 +237,19 @@ export const RiderSignUp = () => {
                     Profile Image
                   </label>
                   <input
-                    type="text"
+                    type="file"
                     name="image"
+                    accept="image/*"
                     className="input  border rounded-lg px-3 py-3 focus:outline-none focus:border-orange-500"
                     placeholder="Enter Your Mobile Number"
-                    value={mobile}
                     onChange={(e) => {
-                      setMobile(e.target.mobile);
+                      setImageData(e.target.files[0]);
                     }}
                   />
                 </div>
                 <button
                   onClick={() => {
-                    handleSignUp;
+                    handleSignUp();
                   }}
                   className="btn mt-4 px-4 py-2 rounded cursor-pointer flex justify-center items-center border border-white bg-amber-600 hover:bg-red-500 transition duration-500"
                 >
@@ -238,5 +291,47 @@ const BubbleText = () => {
       ))}
     </h2>
   );
+};
+
+
+
+
+const NOTIFICATION_TTL = 5000;
+
+const Notification = ({ text, id, removeNotif }) => {
+  useEffect(() => {
+    const timeoutRef = setTimeout(() => {
+      removeNotif(id);
+    }, NOTIFICATION_TTL);
+
+    return () => clearTimeout(timeoutRef);
+  }, []);
+
+  return (
+    <motion.div
+      layout
+      initial={{ y: -15, scale: 0.95 }}
+      animate={{ y: 0, scale: 1 }}
+      exit={{ x: "100%", opacity: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="p-2 flex items-start rounded gap-2 text-xs font-medium shadow-lg text-white bg-[#E74223] pointer-events-auto"
+    >
+      <FiCheckSquare className=" mt-0.5" />
+      <span>{text}</span>
+      <button onClick={() => removeNotif(id)} className="ml-auto mt-0.5">
+        <FiX />
+      </button>
+    </motion.div>
+  );
+};
+
+
+const generateRandomNotif = (message) => {
+  const data = {
+    id: Math.random(),
+    text: `${message}`,
+  };
+
+  return data;
 };
 
