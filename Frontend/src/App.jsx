@@ -6,6 +6,7 @@ import { SignIn } from "./pages/AuthenTication/SignIn";
 export const serverUrl = "http://localhost:8000";
 import { ForgotPassword } from "./pages/AuthenTication/ForgotPassword/ForgotPassword";
 import Otp from "./pages/AuthenTication/RoleSignIn/Otp";
+import Home from "./pages/HomeFolder/Home";
 const App = () => {
   return (
     <div>
@@ -14,6 +15,7 @@ const App = () => {
         <Route path="/signup" element={<SignUp></SignUp>}></Route>
         <Route path="/signin" element={<SignIn></SignIn>}></Route>
         <Route path="/otp" element={<Otp></Otp>}></Route>
+        <Route path="/home" element={<Home></Home>}></Route>
         <Route
           path="/forgot-password"
           element={<ForgotPassword></ForgotPassword>}

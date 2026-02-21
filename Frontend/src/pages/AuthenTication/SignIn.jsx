@@ -29,7 +29,7 @@ export const SignIn = () => {
   console.log('location: ' , location) ; 
   const State = location.state || "user";
   console.log('State: ', State) ; 
-  const [Role, setRole] = useState(State.role);
+  const [Role, setRole] = useState(State.role || "user");
   console.log('Role: ' , Role) ; 
   
 

@@ -25,10 +25,12 @@ export const RiderSignIn = () => {
         ); 
         console.log(res.data.success) ; 
         console.log(res.data.message) ; 
+        alert(res.data.message);
             navigate("/otp");
          
       }catch(error){
         console.error(error.message); 
+        alert(error.response.data.message);
       }
     }
 

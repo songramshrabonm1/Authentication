@@ -34,10 +34,14 @@ const LoginValidationMiddleware = [
 ];
 
 const ResetPasswordd = [
-    body('password')
-        .isLength({min : 6})
-        .withMessage('Password Must Be 6 character')
-]
+    body('email') 
+        .isEmail() 
+        .normalizeEmail() 
+        .withMessage('Provide Authentic Email'), 
+  body("NewPassword")
+    .isLength({ min: 6 })
+    .withMessage("Password Must Be 6 character"),
+];
 
 
 const VerifyOtpValidationMiddleware = [

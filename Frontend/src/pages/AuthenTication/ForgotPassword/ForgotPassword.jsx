@@ -132,9 +132,19 @@ export const ForgotPassword = () => {
       if(ReEnterNewpassword !== Newpassword ){
         return alert('Password & Reenter Password Mustbe same...'); 
       }
+      const res = await axios.post(
+        `http://localhost:3000/api/auth/users/ResetPassword`,
+        { email , NewPassword: Newpassword },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        },
+      );
+      alert(res.data.message + "response143 ") ; 
      
       Navigate('/signin');
     }catch(error){
+      alert(error.response.data.message + "Error 147");
       console.log(error) ; 
     }
   }

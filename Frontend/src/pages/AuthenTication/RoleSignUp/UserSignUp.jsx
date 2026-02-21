@@ -66,6 +66,7 @@ export const UserSignUp = () => {
       console.log(res.data.message);
       setNotifications((pv) => [generateRandomNotif(res.data.message), ...pv]);
 
+      alert(res.data.message);
               // navigate("/signin", { state: { role: "Admin" } });
               navigate("/signin", { state: { role: "user" } });
               // navigate("/signin", { state: { role: "Rider" } });
@@ -74,6 +75,7 @@ export const UserSignUp = () => {
     } catch (error) {
       console.error(error.message);
       const BackendMessage = error.response.data.message || error.message || "Something Went Wrong"
+      alert(BackendMessage);
       setNotifications((pv) => [generateRandomNotif(BackendMessage), ...pv]);
 
     }

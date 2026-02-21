@@ -31,6 +31,7 @@ export const OwnerSignIn= () => {
             navigate('/otp')
           }catch(error){
             console.error(error.message) ; 
+            alert(error.response.data.message);
             console.log(error.response.data.message); 
           }
         };

@@ -241,9 +241,6 @@ const Login = async (req, res) => {
         success : true , 
         statusCode : 200
     })
-
-
-
   } catch (error) {
     console.error(error.message);
     return res.status(500).json({
@@ -500,6 +497,7 @@ const SignOut = async (req, res) => {
 const ResetPassword = async (req, res) => {
   try {
 
+    console.log('Line - 503')
     const ExpressValidation = validationResult(req) ; 
     if(!ExpressValidation.isEmpty()){
         return res.status(400).json({
@@ -508,32 +506,9 @@ const ResetPassword = async (req, res) => {
             statusCode : 400
         })
     }
-    const AccessToken = req.cookies?.AccessToken; 
-    if(!AccessToken){
-        return res.status(401).json({
-            message : 'Invlaid AccessToken', 
-            success : false , 
-            statusCode : 401
-        })
-    }
-    let Decode;
-
-    try{
-
-         Decode = verifyAccessToken(AccessToken); 
-    }catch(error){
-        return res.status(401).json({
-            message : 'Invalid Or Expired Token' , 
-            success : false , 
-            statusCode : 401
-        })
-    }
-  
-
-
-
-    const email = Decode?.email ; 
-    if(!email){
+    const { email, NewPassword } = req.body; 
+    console.log('Email - 511 ', email);
+    if(!email || email?.trim() === "" || NewPassword === "" ||NewPassword?.trim() === ""){
         return res.status(401).json({
             message : 'Invalid AccessToken' , 
             success : false , 
@@ -541,6 +516,7 @@ const ResetPassword = async (req, res) => {
         })
     }
     const UserExist = await UserModel.findOne({email}).select("+password"); 
+    
     if(!UserExist){
         return res.status(401).json({
             message : 'Authentication Error', 
@@ -548,36 +524,15 @@ const ResetPassword = async (req, res) => {
             statusCode : 401
         })
     }
-    const {password , NewPassword} = req.body; 
-    if (
-      !password ||
-      !NewPassword ||
-      NewPassword.trim() === "" ||
-      password.trim() === ""
-    ) {
-      return res.status(400).json({
-        message: "All Fields Are Required",
-        success: false,
-        statusCode: 400,
-      });
-    }
+    console.log('UserExist: 555', UserExist);
+    // if (!NewPassword || NewPassword.trim() === "") {
+    //   return res.status(400).json({
+    //     message: "All Fields Are Required",
+    //     success: false,
+    //     statusCode: 400,
+    //   });
+    // }
 
-    if(password === NewPassword){
-        return res.status(400).json({
-            message : 'NewPassword Must Be Different', 
-            success : false , 
-            statusCode : 400
-        })
-    }
-
-    const IsMatchPassword = await UserExist.comparePassword(password); 
-    if(!IsMatchPassword){
-        return res.status(401).json({
-            message : "Incorrect Password" ,
-            statusCode : 401, 
-            success : false 
-        })
-    }
 
     if(!UserExist.otpVerified){
         return res.status(403).json({
@@ -591,6 +546,7 @@ const ResetPassword = async (req, res) => {
     // আর আবার নতুন refreshToken বানাচ্ছি না কারণ নতুন password দেওয়ার পর user আবার login করতে হবে। 
     UserExist.password = NewPassword; 
     UserExist.otpVerified = false ; 
+    console.log('Save-592');
     await UserExist.save() ; 
 
     return res.status(200).json({

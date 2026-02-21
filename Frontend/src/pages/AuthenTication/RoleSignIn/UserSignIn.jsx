@@ -31,10 +31,12 @@ export const UserSignIn = () => {
       );
       console.log(res.data.message); 
       console.log(res.data.success); 
+      alert(res.data.message);
       navigate("/otp");
 
 
     }catch(error){
+      alert(error.message);
       console.error(error.message); 
     }
   }

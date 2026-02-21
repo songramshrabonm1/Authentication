@@ -17,8 +17,8 @@ const Otp = () => {
   const OtpNumber = 6;
   const [InputArray, setInputArray] = useState(new Array(OtpNumber).fill(""));
   const refArray = useRef([]);
-    const [Minute, setMinute] = useState(4);
-    const [Second, setSecond] = useState(59);
+    // const [Minute, setMinute] = useState(4);
+    // const [Second, setSecond] = useState(59);
 
   useEffect(() => {
     refArray.current[0]?.focus();
@@ -84,6 +84,7 @@ const Otp = () => {
     }
   };
 
+  const navigate = useNavigate();
   const handleVerifyOtp = async () => {
     // setMinute(0);
     // setSecond(0);
@@ -98,8 +99,11 @@ const Otp = () => {
       console.log(res.data.message);
       console.log("OTP: ", InputArray.join(""));
       alert(res.data.message);
+      navigate('/home');
+      
     } catch (error) {
       console.error(error.message);
+      alert(error.response.data.message);
       console.error(error.response.data.message);
     }
   };
@@ -227,10 +231,10 @@ const Otp = () => {
                             // disabled={Second > 0 || Minute > 0}
                             style={{
                               color: "#FF5630",
-                                // Second > 0 || Minute > 0 ? "gray" : "#FF5630",
+                              // Second > 0 || Minute > 0 ? "gray" : "#FF5630",
                               cursor: "pointer",
-                              textDecoration:
-                                Second > 0 || Minute > 0 ? "" : "underline",
+                              textDecoration: "underline",
+                              // Second > 0 || Minute > 0 ? "" : "underline",
                             }}
                             onClick={() => {
                               resendOtp();

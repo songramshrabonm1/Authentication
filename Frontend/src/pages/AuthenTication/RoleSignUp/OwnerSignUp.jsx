@@ -68,7 +68,7 @@ export const OwnerSignUp = () => {
         console.log(res);
         console.log(res.data); 
         console.log(res.data.success);
-      
+      alert(res.data.message);
 
         
       setNotifications((pv) => [generateRandomNotif(res.data.message), ...pv]);
@@ -86,6 +86,7 @@ export const OwnerSignUp = () => {
                 generateRandomNotif(BackendMessage),
                 ...pv,
               ]);
+              alert(BackendMessage);
 
       }
     };

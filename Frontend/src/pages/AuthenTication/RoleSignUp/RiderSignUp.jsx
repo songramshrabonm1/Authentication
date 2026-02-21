@@ -67,7 +67,7 @@ export const RiderSignUp = () => {
         console.log(res.data.success) ;
         
         setNotifications((pv) => [generateRandomNotif(res.data.message), ...pv]);
-             
+             alert(res.data.message); 
         // navigate("/signin", { state: { role: "Admin" } });
         // navigate("/signin", { state: { role: "user" } });
         navigate("/signin", { state: { role: "Rider" } });
@@ -77,6 +77,7 @@ export const RiderSignUp = () => {
         } catch (error) {
           const BackendMessage = error.response.data?.message || error.message || "Something Went Wrong"
           console.log(error);
+          alert(BackendMessage);
           setNotifications((pv)=>[generateRandomNotif(BackendMessage) , ...pv]);
         }
       };
