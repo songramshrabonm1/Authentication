@@ -20,32 +20,32 @@ This project demonstrates a real-world authentication architecture including sec
 
 
 ### Rolebase SignUp
-<img width="280" height="580" alt="Image" src="https://github.com/user-attachments/assets/34fee5ef-16e1-40d8-97e4-c323be358fb2" />
+<img width="350" height="580" alt="Image" src="https://github.com/user-attachments/assets/34fee5ef-16e1-40d8-97e4-c323be358fb2" />
 
-<img width="280" height="580" alt="Image" src="https://github.com/user-attachments/assets/e882e152-47a6-4075-a4d4-6fc7d25881e6" />
+<img width="350" height="580" alt="Image" src="https://github.com/user-attachments/assets/e882e152-47a6-4075-a4d4-6fc7d25881e6" />
 
-<img width="280" height="580" alt="Image" src="https://github.com/user-attachments/assets/087e320c-0bdd-462f-b3cf-30293c8c055d" />
+<img width="350" height="580" alt="Image" src="https://github.com/user-attachments/assets/087e320c-0bdd-462f-b3cf-30293c8c055d" />
 
 **SignIn**
 
 ### Rolebase SignIn
 
-<img width="280" height="580" alt="Image" src="https://github.com/user-attachments/assets/c4105cd5-069d-4ef0-8d2f-2fcdee4114ac" />
+<img width="350" height="580" alt="Image" src="https://github.com/user-attachments/assets/c4105cd5-069d-4ef0-8d2f-2fcdee4114ac" />
 
-<img width="280" height="580" alt="Image" src="https://github.com/user-attachments/assets/527c1fe0-db64-4c14-b6f8-ff65b1620ac9" />
+<img width="350" height="580" alt="Image" src="https://github.com/user-attachments/assets/527c1fe0-db64-4c14-b6f8-ff65b1620ac9" />
 
-<img width="280" height="580" alt="Image" src="https://github.com/user-attachments/assets/e6fd34ea-e32e-401d-bc69-f42cbae7cb50" />
+<img width="350" height="580" alt="Image" src="https://github.com/user-attachments/assets/e6fd34ea-e32e-401d-bc69-f42cbae7cb50" />
 
 
 **FORGETPASSWORD**
 
 ### Forget Password & OTP UI
 
-<img width="280" height="561" alt="Image" src="https://github.com/user-attachments/assets/ae22e0d5-4dfa-4643-99f0-0053db8bbddc" />
+<img width="350" height="561" alt="Image" src="https://github.com/user-attachments/assets/ae22e0d5-4dfa-4643-99f0-0053db8bbddc" />
 
-<img width="280" height="615" alt="Image" src="https://github.com/user-attachments/assets/ab5942ac-6828-41c0-8d83-2e071076af9b" />
+<img width="350" height="615" alt="Image" src="https://github.com/user-attachments/assets/ab5942ac-6828-41c0-8d83-2e071076af9b" />
 
-<img width="280" height="663" alt="Image" src="https://github.com/user-attachments/assets/6c5f48b7-4fd5-4e76-a590-6e203a46ff2a" />
+<img width="350" height="663" alt="Image" src="https://github.com/user-attachments/assets/6c5f48b7-4fd5-4e76-a590-6e203a46ff2a" />
 
 
 
